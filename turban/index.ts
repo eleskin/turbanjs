@@ -1,3 +1,5 @@
+let _selector: string = null;
+
 export class Component {
 	constructor() {
 	}
@@ -14,7 +16,7 @@ export class Component {
 	});
 	
 	buttonHandleClick: Function = (): void => {
-		this.data.count += 0;
+		this.data.count += 1;
 	};
 	
 	DOM: any = () => ({
@@ -35,8 +37,28 @@ export class Component {
 	});
 }
 
+const deepEqual: Function = (oldDOM: any, DOM: any): boolean => {
+	let result = true;
+	for (const prop in DOM) {
+		if (Array.isArray(DOM[prop]) && Array.isArray(oldDOM[prop])) {
+			for (let i = 0; i < DOM[prop].length; i++) {
+				result = deepEqual(oldDOM[prop][i], DOM[prop][i]);
+			}
+		} else if (typeof DOM[prop] === 'object' && typeof oldDOM[prop] === 'object') {
+			result = deepEqual(oldDOM[prop], DOM[prop]);
+		} else {
+			if (DOM[prop] !== oldDOM[prop]) {
+				result = false;
+			}
+		}
+	}
+	
+	return result;
+};
+
 class Turban {
 	static recreateDOM(oldDOM: any, DOM: any) {
+		if (!deepEqual(oldDOM, DOM)) render(_selector, {DOM: () => DOM});
 	}
 	
 	static createDOM(DOM: any) {
@@ -65,7 +87,10 @@ class Turban {
 }
 
 export const render: Function = (selector: string, component: Component): void => {
-	const element: Element = document.querySelector(selector);
+	_selector = selector;
+	const element: any = document.querySelector(selector);
+	
+	element.innerText = null;
 	
 	element.appendChild(Turban.createDOM(component.DOM()));
 };
