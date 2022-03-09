@@ -1,7 +1,3 @@
-import {render} from './turban';
-import App from './App';
+import {Component, render} from '../turban';
 
-render({
-	selector: '#app',
-	component: App()
-});
+render('#app', new Component());
