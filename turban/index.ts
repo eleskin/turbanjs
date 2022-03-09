@@ -57,11 +57,26 @@ const deepEqual: Function = (oldDOM: any, DOM: any): boolean => {
 };
 
 class Turban {
-	static recreateDOM(oldDOM: any, DOM: any) {
-		if (!deepEqual(oldDOM, DOM)) render(_selector, {DOM: () => DOM});
+	static replaceDOMValues(oldVirtualDOM: any, virtualDOM: any): void {
+		if (!oldVirtualDOM.isEqualNode(virtualDOM)) {
+			for (let count = 0; count < virtualDOM.childNodes.length; count++) {
+				if (!oldVirtualDOM.childNodes[count].isEqualNode(virtualDOM.childNodes[count])) {
+					Turban.replaceDOMValues(oldVirtualDOM.childNodes[count], virtualDOM.childNodes[count]);
+					oldVirtualDOM.childNodes[count].innerHTML = virtualDOM.childNodes[count].innerHTML;
+				}
+			}
+		}
 	}
 	
-	static createDOM(DOM: any) {
+	static recreateDOM(oldDOM: any, DOM: any): void {
+		if (!deepEqual(oldDOM, DOM)) {
+			const virtualDOM = Turban.createDOM(DOM);
+			
+			Turban.replaceDOMValues(document.querySelector('#app').children[0], virtualDOM);
+		}
+	}
+	
+	static createDOM(DOM: any): Element {
 		const rootElement: Element = DOM.element !== '#text' ?
 			document.createElement(DOM.element) :
 			document.createTextNode(DOM.text);
