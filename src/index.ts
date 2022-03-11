@@ -1,3 +1,4 @@
-import {Component, render} from '../turban';
+import {render} from '../turban';
+import App from './App';
 
-render('#app', new Component());
+render('#app', new App());
